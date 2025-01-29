@@ -1,7 +1,6 @@
 
 import math
 import os
-import sys
 
 import cv2
 import numpy as np
@@ -9,14 +8,14 @@ import numpy as np
 
 def detect_lanes(src_image, folder_name, side):
 
-    scale = 1
-    delta = 0
-    ddepth = cv2.CV_16S
-
     src = cv2.imread(os.path.join(folder_name, src_image).replace("\\", "/"))
 
     src = cv2.GaussianBlur(src, (3, 3), 0)
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+
+    scale = 1
+    delta = 0
+    ddepth = cv2.CV_16S
 
     grad_x = cv2.Sobel(gray, ddepth, 1, 0, ksize=3, scale=scale, delta=delta, borderType=cv2.BORDER_DEFAULT)
     grad_y = cv2.Sobel(gray, ddepth, 0, 1, ksize=3, scale=scale, delta=delta, borderType=cv2.BORDER_DEFAULT)
@@ -76,8 +75,8 @@ def seperate_lines(lines):
     
     return left_lines, right_lines
 
-def draw_intercept(left_x1, left_y1, left_x2, left_y2, right_x1, right_y1, right_x2, right_y2, edges):
-    # Compute the intersection point
+def get_intercept_coordinates(left_x1, left_y1, left_x2, left_y2, right_x1, right_y1, right_x2, right_y2):
+     # Compute the intersection point
     left_slope = (left_y2 - left_y1) / (left_x2 - left_x1)
     right_slope = (right_y2 - right_y1) / (right_x2 - right_x1)
     left_intercept = left_y1 - left_slope * left_x1
@@ -85,9 +84,7 @@ def draw_intercept(left_x1, left_y1, left_x2, left_y2, right_x1, right_y1, right
     x = int((right_intercept - left_intercept) / (left_slope - right_slope))
     y = int(left_slope * x + left_intercept)
 
-    cv2.circle(edges, (x, y), 6, (0, 0, 255), -1)
-
-    return edges
+    return x, y
 
 def draw_average_line(left_lines, right_lines, src_image):
     # Variables to store the sum of rho and theta
@@ -115,10 +112,6 @@ def draw_average_line(left_lines, right_lines, src_image):
     left_x2 = int(x0 - 1000 * (-b))
     left_y2 = int(y0 - 1000 * (a))
 
-    # Create an output image
-    cv2.line(src_image, (left_x1, left_y1), (left_x2, left_y2), (255, 0, 0), 4)
-
-
     #right lines
     sum_rho = 0
     sum_theta = 0
@@ -144,10 +137,17 @@ def draw_average_line(left_lines, right_lines, src_image):
     right_x2 = int(x0 - 1000 * (-b))
     right_y2 = int(y0 - 1000 * (a))
 
-    # Create an output image
-    cv2.line(src_image, (right_x1, right_y1), (right_x2, right_y2), (255, 0, 0), 4)
+    #get intercept coordinates
+    intercept_x, intercept_y = get_intercept_coordinates(left_x1, left_y1, left_x2, left_y2, right_x1, right_y1, right_x2, right_y2)
 
-    src_image = draw_intercept(left_x1, left_y1, left_x2, left_y2, right_x1, right_y1, right_x2, right_y2, src_image)
+    #draw left lane
+    cv2.line(src_image, (left_x1, left_y1), (intercept_x, intercept_y), (0, 255, 0), 4)
+
+    #draw right lane
+    cv2.line(src_image, (intercept_x, intercept_y), (right_x2, right_y2), (0, 255, 0), 4)
+
+    #draw intercept
+    cv2.circle(src_image, (intercept_x, intercept_y), 6, (0, 0, 255), -1)
 
     return src_image
 
