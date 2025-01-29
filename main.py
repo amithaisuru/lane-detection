@@ -7,15 +7,17 @@ import cv2
 import numpy as np
 
 
-def test_roi(src_image, folder_name, side):
+def detect_lanes(src_image, folder_name, side):
+
     scale = 1
     delta = 0
     ddepth = cv2.CV_16S
-    THERDHOLD = 40
 
     src = cv2.imread(os.path.join(folder_name, src_image).replace("\\", "/"))
+
     src = cv2.GaussianBlur(src, (3, 3), 0)
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+
     grad_x = cv2.Sobel(gray, ddepth, 1, 0, ksize=3, scale=scale, delta=delta, borderType=cv2.BORDER_DEFAULT)
     grad_y = cv2.Sobel(gray, ddepth, 0, 1, ksize=3, scale=scale, delta=delta, borderType=cv2.BORDER_DEFAULT)
     abs_grad_x = cv2.convertScaleAbs(grad_x)
@@ -40,7 +42,6 @@ def test_roi(src_image, folder_name, side):
     grad = cv2.bitwise_and(grad, mask)
 
     #add threshold
-    #_,binary_image = cv2.threshold(grad, THERDHOLD, 255, cv2.THRESH_BINARY)
     _,binary_image = cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     #apply hough transform
@@ -66,7 +67,7 @@ def seperate_lines(lines):
     
     for line in lines:
         #calculate the slope
-        rho, theta = line[0]
+        _, theta = line[0] #rho, theta
         slope = -math.cos(theta) / math.sin(theta)
         if slope < 0:
             left_lines.append(line)
@@ -174,7 +175,7 @@ def main():
     images = [img for img in os.listdir(folder_name) if img.endswith(".bmp")]
     for image in images:
         print(image, folder_name)
-        test_roi(image, folder_name, "left")
+        detect_lanes(image, folder_name, "left")
 
     #generate video
     generate_video("processed_images_left")
@@ -184,7 +185,7 @@ def main():
     images = [img for img in os.listdir(folder_name) if img.endswith(".bmp")]
     for image in images:
         print(image, folder_name)
-        test_roi(image, folder_name, "right")
+        detect_lanes(image, folder_name, "right")
     
     #generate video
     generate_video("processed_images_right")
