@@ -13,8 +13,8 @@ This project processes dashcam video frames to detect and highlight road lanes u
  ├── 📂 TestVideo_1/                # Dashcam video frames (right-side view)  
  ├── 📂 TestVideo_2/                # Dashcam video frames (left-side view)  
  ├── 📄 main.py                     # Main Python script for lane detection  
- ├── 🎥 processed_images_left.avi    # Output video for left lane detection  
- ├── 🎥 processed_images_right.avi   # Output video for right lane detection  
+ ├── 🎥 processed_images_left.mp4    # Output video for left lane detection  
+ ├── 🎥 processed_images_right.mp4   # Output video for right lane detection  
  └── 📄 README.md                    # Project documentation  
 ```
 
