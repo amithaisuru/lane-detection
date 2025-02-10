@@ -158,7 +158,7 @@ def generate_video(folder_name):
     frame = cv2.imread(os.path.join(folder_name, images[0]).replace("\\", "/"))
     height, width, layers = frame.shape
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    video = cv2.VideoWriter(f"{folder_name}.avi", fourcc, 15, (width, height))
+    video = cv2.VideoWriter(f"{folder_name}.mp4", fourcc, 15, (width, height))
 
     for image in images:
         video.write(cv2.imread(os.path.join(folder_name, image).replace("\\", "/")))
