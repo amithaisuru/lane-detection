@@ -22,7 +22,7 @@ def detect_lanes(src_image, folder_name, side):
     abs_grad_x = cv2.convertScaleAbs(grad_x)
     abs_grad_y = cv2.convertScaleAbs(grad_y)
 
-    grad = cv2.addWeighted(abs_grad_x, 0.2, abs_grad_y, 0.2, 0)
+    grad = cv2.addWeighted(abs_grad_x, 0.2, abs_grad_y, 0.2, 0) #abs_x, wieghts for x, abs_y, wieghts for y, gamma(brightness) 
 
     #define region of interest
     height, width = grad.shape
